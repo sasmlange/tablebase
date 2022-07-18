@@ -1,0 +1,48 @@
+name: Bug Report
+description: Report what went wrong
+labels: [bug]
+body:
+  - label: Please note that this form is only for bugs. If you do not have a bug go to the discussions tab.
+  - type: input
+      attributes:
+        label: OS Version
+        placeholder: ex. Windows 10
+      validations:
+        required: true
+
+  - type: input
+      attributes:
+        label: Python Version
+        placeholder: ex. 3.10
+      validations:
+        required: true
+
+  - type: input
+      attributes:
+        label: Tablebase Version
+        placeholder: ex. 1.4.2
+      validations:
+        required: true
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: What went wrong? Tell us everything!
+    validations:
+      required: true
+
+  - type: textarea
+      attributes:
+        label: Your Code
+        description: Please give us the code that failed.
+      validations:
+        required: false
+
+  - type: textarea
+      attributes:
+        label: Comments
+        description: Anything else to add?
+      validations:
+        required: false
+
+
