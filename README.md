@@ -1,16 +1,18 @@
-Table Base
+Tablebase
 =============
 
-What is Table Base?
+Note: If you found a bug please open an issue. If not create a discussion
+
+What is Tablebase?
 ------------------------
 
-Table Base is a python package to make coding with tables 
+Tablebase is a python package to make coding with tables 
 effortless.
 
-Install Table Base
+Install Tablebase
 -------------------------
 
-To install Table Base use pypi (pip)
+To install Tablebase use pypi (pip)
 
 `pip install tablebase`
 
