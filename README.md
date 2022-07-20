@@ -1,7 +1,9 @@
 Tablebase
 =============
 
-Note: If you found a bug please open an issue. If not create a discussion
+Note: If you found a bug please open an issue. If not create a discussion.
+
+All relesses starting at 1.2.4 can be found [here](releases)
 
 What is Tablebase?
 ------------------------
