@@ -38,9 +38,9 @@ class Table(object):
 
         return col
 
-    def add_expand(self, new_col_name, old_col_name, action, value):
+    def add_legacy_expand(self, new_col_name, old_col_name, action, value):
         """
-        Used to add a column that is based on another column.
+        Used to add a column that is based on another column. If you want to use the non legacy way to add an expand, see the add_expand function
 
         :param new_col_name: The name for you new column.
         :param old_col_name: The name for the column you wish to expand from.
