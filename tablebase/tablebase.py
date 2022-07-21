@@ -1,5 +1,6 @@
 import re
 
+
 class Table(object):
     """The Table class is the basic table in tablebase."""
     name = ""
@@ -25,6 +26,13 @@ class Table(object):
         return string
 
     def del_col(self, col_name):
+        """
+        Used to delete a column
+
+        :param col_name: The name of the column you wish to delete
+        :return:
+        """
+
         del_num = self.table_content[0].index(col_name)
 
         for i in range(int(len(self.table_content))):
