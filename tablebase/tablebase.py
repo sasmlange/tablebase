@@ -1,3 +1,5 @@
+import re
+
 class Table(object):
     """The Table class is the basic table in tablebase."""
     name = ""
@@ -71,6 +73,27 @@ class Table(object):
                 raise Exception(f"Unknown action '{action}'")
 
         self.add_col(new_col_name, result)
+
+    def add_expand(self, new_col_name, formula):
+        """
+         Used to add a column that is based on another column.
+
+        :param new_col_name: The new name for your column.
+        :param formula: The formula for your expand. More info coming soon!
+        :return:
+        """
+        col_names_found = re.findall("@(.+?)@", formula)
+
+        results = []
+
+        for i in range(int(len(self.table_content)) - 1):
+            current_formula = formula
+            for j in col_names_found:
+                current_formula = current_formula.replace(f"@{j}@", str(self.get_col(j)[i]))
+
+            results.append(eval(current_formula))
+
+        self.add_col(new_col_name, results)
 
     def add_row(self, new_content):
         """
