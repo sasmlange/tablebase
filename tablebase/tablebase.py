@@ -24,6 +24,12 @@ class Table(object):
             string = string + "\n"
         return string
 
+    def del_col(self, col_name):
+        del_num = self.table_content[0].index(col_name)
+
+        for i in range(int(len(self.table_content))):
+            self.table_content[i].pop(del_num)
+
     def get_col(self, col_name):
         """
         Used to get all data in one column.
