@@ -126,6 +126,17 @@ class Table(object):
 
         self.add_col(new_col_name, self._private_expand(formula))
 
+    def expand(self, col_name, formula):
+        """
+         Used to override a column that is based on another column.
+
+        :param col_name: The name of the column that you want to override.
+        :param formula: The formula for your expand. More info coming soon!
+        :return:
+        """
+
+        self.override_col(col_name, self._private_expand(formula))
+
     def add_row(self, new_content):
         """
         Used to add a row to your table.
