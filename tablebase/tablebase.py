@@ -38,6 +38,16 @@ class Table(object):
         for i in range(int(len(self.table_content)) - 1):
             self.table_content[i + 1][col_num] = value[i]
 
+    def rename_col(self, col_name, new_col_name):
+        """
+        Used to rename a column.
+
+        :param col_name: The current name of the column
+        :param new_col_name: The new name that you want to give your column
+        :return:
+        """
+        self.table_content[0][self.table_content[0].index(col_name)] = new_col_name
+
     def del_col(self, col_name):
         """
         Used to delete a column
