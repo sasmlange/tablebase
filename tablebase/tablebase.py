@@ -25,6 +25,19 @@ class Table(object):
             string = string + "\n"
         return string
 
+    def override_col(self, col_name, value):
+        """
+        Used to override all content in the column
+
+        :param col_name: The name of the column
+        :param value: A list with your new column content.
+        :return:
+        """
+
+        col_num = self.table_content[0].index(col_name)
+        for i in range(int(len(self.table_content)) - 1):
+            self.table_content[i + 1][col_num] = value[i]
+
     def del_col(self, col_name):
         """
         Used to delete a column
@@ -88,14 +101,7 @@ class Table(object):
 
         self.add_col(new_col_name, result)
 
-    def add_expand(self, new_col_name, formula):
-        """
-         Used to add a column that is based on another column.
-
-        :param new_col_name: The new name for your column.
-        :param formula: The formula for your expand. More info coming soon!
-        :return:
-        """
+    def _private_expand(self, formula):
         col_names_found = re.findall("@(.+?)@", formula)
 
         results = []
@@ -107,7 +113,18 @@ class Table(object):
 
             results.append(eval(current_formula))
 
-        self.add_col(new_col_name, results)
+        return results
+
+    def add_expand(self, new_col_name, formula):
+        """
+         Used to add a column that is based on another column.
+
+        :param new_col_name: The new name for your column.
+        :param formula: The formula for your expand. More info coming soon!
+        :return:
+        """
+
+        self.add_col(new_col_name, self._private_expand(formula))
 
     def add_row(self, new_content):
         """
