@@ -89,7 +89,6 @@ class Table(object):
         """
         result = []
 
-
         for i in self.get_col(old_col_name):
             if action == "+" or action == "add":
                 result.append(float(i) + float(value))
