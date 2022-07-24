@@ -110,7 +110,7 @@ class Table(object):
 
         self.add_col(new_col_name, result)
 
-    def _private_expand(self, formula):
+    def __private_expand(self, formula):
         col_names_found = re.findall("@(.+?)@", formula)
 
         results = []
@@ -133,7 +133,7 @@ class Table(object):
         :return:
         """
 
-        self.add_col(new_col_name, self._private_expand(formula))
+        self.add_col(new_col_name, self.__private_expand(formula))
 
     def expand(self, col_name, formula):
         """
@@ -144,7 +144,7 @@ class Table(object):
         :return:
         """
 
-        self.override_col(col_name, self._private_expand(formula))
+        self.override_col(col_name, self.__private_expand(formula))
 
     def add_row(self, new_content):
         """
