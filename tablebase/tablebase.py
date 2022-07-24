@@ -1,9 +1,17 @@
+import re
+
+
 class Table(object):
     """The Table class is the basic table in tablebase."""
     name = ""
     table_content = [[]]
     """
     The table_content holds the table data
+    
+    .. note::
+
+        :code:`.table_content` returns a list of lists
+    
     """
 
     def display(self, divider=", "):
@@ -22,6 +30,42 @@ class Table(object):
             string = string + "\n"
         return string
 
+    def override_col(self, col_name, value):
+        """
+        Used to override all content in the column
+
+        :param col_name: The name of the column
+        :param value: A list with your new column content.
+        :return:
+        """
+
+        col_num = self.table_content[0].index(col_name)
+        for i in range(int(len(self.table_content)) - 1):
+            self.table_content[i + 1][col_num] = value[i]
+
+    def rename_col(self, col_name, new_col_name):
+        """
+        Used to rename a column.
+
+        :param col_name: The current name of the column
+        :param new_col_name: The new name that you want to give your column
+        :return:
+        """
+        self.table_content[0][self.table_content[0].index(col_name)] = new_col_name
+
+    def del_col(self, col_name):
+        """
+        Used to delete a column
+
+        :param col_name: The name of the column you wish to delete
+        :return:
+        """
+
+        del_num = self.table_content[0].index(col_name)
+
+        for i in range(int(len(self.table_content))):
+            self.table_content[i].pop(del_num)
+
     def get_col(self, col_name):
         """
         Used to get all data in one column.
@@ -38,39 +82,41 @@ class Table(object):
 
         return col
 
-    def add_expand(self, new_col_name, old_col_name, action, value):
-        """
-        Used to add a column that is based on another column.
+    def __private_expand(self, formula):
+        col_names_found = re.findall("@(.+?)@", formula)
 
-        :param new_col_name: The name for you new column.
-        :param old_col_name: The name for the column you wish to expand from.
-        :param action: What change you want from your old column to your new column. Can be "+" (or "add"), "-" (or subtract), "*" (or multiply), "/" (or divide), or "join" for combining two strings.
-        :param value: What difference from the old column you wish to make. For example, if your action was "*", then and your value was "2", everything would get multiplied by two.
+        results = []
+
+        for i in range(int(len(self.table_content)) - 1):
+            current_formula = formula
+            for j in col_names_found:
+                current_formula = current_formula.replace(f"@{j}@", str(self.get_col(j)[i]))
+
+            results.append(eval(current_formula))
+
+        return results
+
+    def add_expand(self, new_col_name, formula):
+        """
+         Used to add a column that is based on another column.
+
+        :param new_col_name: The new name for your column.
+        :param formula: The formula for your expand. `More information <expandformula.html>`_.
         :return:
         """
-        result = []
 
+        self.add_col(new_col_name, self.__private_expand(formula))
 
-        for i in self.get_col(old_col_name):
-            if action == "+" or action == "add":
-                result.append(float(i) + float(value))
+    def expand(self, col_name, formula):
+        """
+         Used to override a column that is based on another column.
 
-            elif action == "-" or action == "subtract":
-                result.append(float(i) - float(value))
+        :param col_name: The name of the column that you want to override.
+        :param formula: The formula for your expand. `More information <expandformula.html>`_
+        :return:
+        """
 
-            elif action == "*" or action == "multiply":
-                result.append(float(i) * float(value))
-
-            elif action == "/" or action == "divide":
-                result.append(float(i) / float(value))
-
-            elif action == "join":
-                result.append(str(i) + str(value))
-
-            else:
-                raise Exception(f"Unknown action '{action}'")
-
-        self.add_col(new_col_name, result)
+        self.override_col(col_name, self.__private_expand(formula))
 
     def add_row(self, new_content):
         """
