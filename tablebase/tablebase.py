@@ -7,6 +7,11 @@ class Table(object):
     table_content = [[]]
     """
     The table_content holds the table data
+    
+    .. note::
+
+        :code:`.table_content` returns a list of lists
+    
     """
 
     def display(self, divider=", "):
@@ -77,39 +82,6 @@ class Table(object):
 
         return col
 
-    def add_legacy_expand(self, new_col_name, old_col_name, action, value):
-        """
-        Used to add a column that is based on another column. If you want to use the non legacy way to add an expand, see the add_expand function
-
-        :param new_col_name: The name for you new column.
-        :param old_col_name: The name for the column you wish to expand from.
-        :param action: What change you want from your old column to your new column. Can be "+" (or "add"), "-" (or subtract), "*" (or multiply), "/" (or divide), or "join" for combining two strings.
-        :param value: What difference from the old column you wish to make. For example, if your action was "*", then and your value was "2", everything would get multiplied by two.
-        :return:
-        """
-        result = []
-
-        for i in self.get_col(old_col_name):
-            if action == "+" or action == "add":
-                result.append(float(i) + float(value))
-
-            elif action == "-" or action == "subtract":
-                result.append(float(i) - float(value))
-
-            elif action == "*" or action == "multiply":
-                result.append(float(i) * float(value))
-
-            elif action == "/" or action == "divide":
-                result.append(float(i) / float(value))
-
-            elif action == "join":
-                result.append(str(i) + str(value))
-
-            else:
-                raise Exception(f"Unknown action '{action}'")
-
-        self.add_col(new_col_name, result)
-
     def __private_expand(self, formula):
         col_names_found = re.findall("@(.+?)@", formula)
 
@@ -129,7 +101,7 @@ class Table(object):
          Used to add a column that is based on another column.
 
         :param new_col_name: The new name for your column.
-        :param formula: The formula for your expand. More info coming soon!
+        :param formula: The formula for your expand. `More information <expandformula.html>`_.
         :return:
         """
 
@@ -140,7 +112,7 @@ class Table(object):
          Used to override a column that is based on another column.
 
         :param col_name: The name of the column that you want to override.
-        :param formula: The formula for your expand. More info coming soon!
+        :param formula: The formula for your expand. `More information <expandformula.html>`_
         :return:
         """
 
