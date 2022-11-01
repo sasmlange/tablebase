@@ -1,5 +1,5 @@
 import re
-
+import csv
 
 class Table(object):
     """The Table class is the basic table in tablebase."""
@@ -210,9 +210,9 @@ class Table(object):
         :param divider: The divider between columns.
         :return:
         """
-        content = self.display(divider)
-        with open(path, 'w') as csv:
-            csv.write(content)
+        with open(path, 'w') as csv_file:
+            csv_writer = csv.writer(csv_file, delimiter=divider)
+            csv_writer.writerows(self.table_content)
 
 
 class CsvTable(Table):
@@ -226,12 +226,6 @@ class CsvTable(Table):
         self.csv_path = csv_path
 
         with open(csv_path) as csv_file:
-            csv_content = csv_file.read()
-
-        csv_content = csv_content.split("\n")
-
-        csv_content_list = []
-        for row in csv_content:
-            csv_content_list.append(row.split(divider))
+            csv_content_list = list(csv.reader(csv_file, delimiter=divider))
 
         self.table_content = csv_content_list
