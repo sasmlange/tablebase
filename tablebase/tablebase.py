@@ -1,6 +1,7 @@
 import re
 import csv
 
+
 class Table(object):
     """The Table class is the basic table in tablebase."""
     name = ""
@@ -84,6 +85,8 @@ class Table(object):
 
         return col
 
+    
+
     def __private_expand(self, formula):
         col_names_found = re.findall("@(.+?)@", formula)
 
@@ -92,7 +95,7 @@ class Table(object):
         for i in range(int(len(self.table_content)) - 1):
             current_formula = formula
             for j in col_names_found:
-                current_formula = current_formula.replace(f"@{j}@", str(self.get_col(j)[i]))
+                current_formula = current_formula.replace(f"@{j}@", str(self.__string_type(self.get_col(j)[i])))
 
             results.append(eval(current_formula))
 
@@ -146,7 +149,20 @@ class Table(object):
 
                 self.table_content[i + 1].append(default_value[i])
 
-    def edit_row(self, row_num, col_name, new_value):
+    def edit_row(self, row_num, new_value):
+        if type(new_value) is not dict and type(new_value) is not list:
+            raise TypeError("Only types 'dict' and 'list' are excepted")
+
+        if type(new_value) is dict:
+            for row_name, value in new_value.items():
+                index = self.table_content[0].index(row_name)
+                self.table_content[row_num][index] = value
+        else:
+            if len(new_value) != len(self.table_content[0]):
+                raise ValueError("The new value is not the same length as the table header.")
+            self.table_content[row_num] = new_value
+
+    def edit_cell(self, row_num, col_name, new_value):
         """
         Used to edit a cell of your table.
 
