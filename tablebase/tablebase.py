@@ -85,7 +85,15 @@ class Table(object):
 
         return col
 
-    
+    def __string_type(self, string):
+        if type(string) is str:
+            return f"'{string}'"
+        else:
+            return string    def __string_type(self, string):
+        if type(string) is str:
+            return f"'{string}'"
+        else:
+            return string
 
     def __private_expand(self, formula):
         col_names_found = re.findall("@(.+?)@", formula)
@@ -191,8 +199,8 @@ class Table(object):
             col_names_found = re.findall("@(.+?)@", formula)
             current_formula = formula
             for j in col_names_found:
-                current_formula = current_formula.replace(f"@{j}@", str(self.get_col(j)[i[0]]))
-            print(current_formula)
+                current_formula = current_formula.replace(f"@{j}@", str(self.__string_type(self.get_col(j)[i[0]])))
+
             if eval(current_formula):
                 result_list.append(i[1])
 
