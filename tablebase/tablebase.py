@@ -15,21 +15,20 @@ class Table(object):
     
     """
 
-    def display(self, divider=", "):
+    def display(self, divider=""):
         """
         Use display for pretty-printing to the console.
 
         :param divider: Used to customize the divider between the columns.
-        :return: A string with a pretty-print of your table.
+        :return:
         """
-        string = ""
+        longest_cols = [
+            (max([len(str(row[i])) for row in self.table_content]) + 3)
+            for i in range(len(self.table_content[0]))
+        ]
+        row_format = "".join(["{:>" + str(longest_col) + "}" + divider for longest_col in longest_cols])
         for row in self.table_content:
-            for record in range(int(len(row))):
-                string = string + str(row[record])
-                if int(len(row)) != record + 1:
-                    string = string + str(divider)
-            string = string + "\n"
-        return string
+            print(row_format.format(*row))
 
     def override_col(self, col_name, value):
         """
@@ -86,10 +85,6 @@ class Table(object):
         return col
 
     def __string_type(self, string):
-        if type(string) is str:
-            return f"'{string}'"
-        else:
-            return string    def __string_type(self, string):
         if type(string) is str:
             return f"'{string}'"
         else:
