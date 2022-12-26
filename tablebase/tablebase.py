@@ -183,14 +183,13 @@ class Table(object):
         """
         self.table_content[row_num][self.table_content[0].index(col_name)] = new_value
 
-    def filter(self, formula, search_start=1, search_end="END", add_headers_to_result=True):
+    def filter(self, formula, search_start=1, search_end="END"):
         """
         Used to filter your table.
 
         :param formula: The formula for your filter. `More information <filterformula.html>`_
         :param search_start: The row to start filtering at.
         :param search_end: The row to stop filtering at. Type "END" to stop at the end.
-        :param add_headers_to_result: If True, your table headers will be included in the result.
         :return: A Table object with the filtered results.
         """
         if search_end == "END":
@@ -206,9 +205,7 @@ class Table(object):
             if eval(current_formula):
                 result_list.append(i[1])
 
-        if add_headers_to_result:
-            result_list.insert(0, self.table_content[0])
-
+        result_list.insert(0, self.table_content[0])
         temp_table = Table()
         temp_table.table_content = result_list
         return temp_table
