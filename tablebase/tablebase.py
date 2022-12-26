@@ -109,7 +109,7 @@ class Table(object):
          Used to add a column that is based on another column.
 
         :param new_col_name: The new name for your column.
-        :param formula: The formula for your expand. `More information <expandformula.html>`_.
+        :param formula: The formula (string) for your expand. Use @ signs to name your column names. For example :code:`"@col_name@"`. The return result will be in your result. You can use built-in python functions. Example: :code:`str(int(@col_name@) + 10) + @another_col_name@`
         :return:
         """
 
@@ -120,7 +120,7 @@ class Table(object):
          Used to override a column that is based on another column.
 
         :param col_name: The name of the column that you want to override.
-        :param formula: The formula for your expand. `More information <expandformula.html>`_
+        :param formula: The formula (string) for your expand. Use @ signs to name your column names. For example :code:`"@col_name@"`. The return result will be in your result. You can use built-in python functions. Example: :code:`str(int(@col_name@) + 10) + @another_col_name@`
         :return:
         """
 
@@ -187,7 +187,7 @@ class Table(object):
         """
         Used to filter your table.
 
-        :param formula: The formula for your filter. `More information <filterformula.html>`_
+        :param formula: The formula (string) for your filter. Use @ signs to name your column names. For example :code:`@col_name@`. You can write your filter just like an if statement. Example: :code:`@col_name@ == 'hello'` You can use built-in python functions. Example: :code:`float(@col_name@) + float(@another_col_name@) > 10`
         :param search_start: The row to start filtering at.
         :param search_end: The row to stop filtering at. Type "END" to stop at the end.
         :return: A Table object with the filtered results.
