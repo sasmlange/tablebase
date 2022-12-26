@@ -1,6 +1,7 @@
 import re
 import csv
 
+
 class Table(object):
     """The Table class is the basic table in tablebase."""
     name = ""
@@ -14,21 +15,20 @@ class Table(object):
     
     """
 
-    def display(self, divider=", "):
+    def display(self, divider=""):
         """
         Use display for pretty-printing to the console.
 
         :param divider: Used to customize the divider between the columns.
-        :return: A string with a pretty-print of your table.
+        :return:
         """
-        string = ""
+        longest_cols = [
+            (max([len(str(row[i])) for row in self.table_content]) + 3)
+            for i in range(len(self.table_content[0]))
+        ]
+        row_format = "".join(["{:>" + str(longest_col) + "}" + divider for longest_col in longest_cols])
         for row in self.table_content:
-            for record in range(int(len(row))):
-                string = string + str(row[record])
-                if int(len(row)) != record + 1:
-                    string = string + str(divider)
-            string = string + "\n"
-        return string
+            print(row_format.format(*row))
 
     def override_col(self, col_name, value):
         """
@@ -71,16 +71,24 @@ class Table(object):
         Used to get all data in one column.
 
         :param col_name: The name of the column you wish to get.
-        :return: A list of all data in one column.
+        :return: A list of all data in one column (column name not included).
         """
         col_position = self.table_content[0].index(col_name)
+        temp_table_content = self.table_content[:]
+        temp_table_content.pop(0)
 
         col = []
 
-        for i in range(int(len(self.table_content))-1):
-            col.append(self.table_content[i+1][col_position])
+        for i in temp_table_content:
+            col.append(i[col_position])
 
         return col
+
+    def __string_type(self, string):
+        if type(string) is str:
+            return f"'{string}'"
+        else:
+            return string
 
     def __private_expand(self, formula):
         col_names_found = re.findall("@(.+?)@", formula)
@@ -90,7 +98,7 @@ class Table(object):
         for i in range(int(len(self.table_content)) - 1):
             current_formula = formula
             for j in col_names_found:
-                current_formula = current_formula.replace(f"@{j}@", str(self.get_col(j)[i]))
+                current_formula = current_formula.replace(f"@{j}@", str(self.__string_type(self.get_col(j)[i])))
 
             results.append(eval(current_formula))
 
@@ -101,7 +109,7 @@ class Table(object):
          Used to add a column that is based on another column.
 
         :param new_col_name: The new name for your column.
-        :param formula: The formula for your expand. `More information <expandformula.html>`_.
+        :param formula: The formula (string) for your expand. Use @ signs to name your column names. For example :code:`"@col_name@"`. The return result will be in your result. You can use built-in python functions. Example: :code:`str(int(@col_name@) + 10) + @another_col_name@`
         :return:
         """
 
@@ -112,7 +120,7 @@ class Table(object):
          Used to override a column that is based on another column.
 
         :param col_name: The name of the column that you want to override.
-        :param formula: The formula for your expand. `More information <expandformula.html>`_
+        :param formula: The formula (string) for your expand. Use @ signs to name your column names. For example :code:`"@col_name@"`. The return result will be in your result. You can use built-in python functions. Example: :code:`str(int(@col_name@) + 10) + @another_col_name@`
         :return:
         """
 
@@ -144,9 +152,29 @@ class Table(object):
 
                 self.table_content[i + 1].append(default_value[i])
 
-    def edit_row(self, row_num, col_name, new_value):
+    def edit_row(self, row_num, new_value):
         """
-        Used to edit a record of your table.
+        Used to edit a row.
+
+        :param row_num: The row number to edit.
+        :param new_value: Use a list override a row. If you use a dictionary, the key will be the column name.
+        :return:
+        """
+        if type(new_value) is not dict and type(new_value) is not list:
+            raise TypeError("Only types 'dict' and 'list' are excepted")
+
+        if type(new_value) is dict:
+            for row_name, value in new_value.items():
+                index = self.table_content[0].index(row_name)
+                self.table_content[row_num][index] = value
+        else:
+            if len(new_value) != len(self.table_content[0]):
+                raise ValueError("The new value is not the same length as the table header.")
+            self.table_content[row_num] = new_value
+
+    def edit_cell(self, row_num, col_name, new_value):
+        """
+        Used to edit a cell of your table.
 
         :param row_num: The row number of the record that you wish to edit.
         :param col_name: The column name of your record that you wish to edit.
@@ -155,7 +183,34 @@ class Table(object):
         """
         self.table_content[row_num][self.table_content[0].index(col_name)] = new_value
 
-    def filter(self, col_name, value, type="exact", search_start=1, search_end="END", add_headers_to_result=True, legacy=False):
+    def filter(self, formula, search_start=1, search_end="END"):
+        """
+        Used to filter your table.
+
+        :param formula: The formula (string) for your filter. Use @ signs to name your column names. For example :code:`@col_name@`. You can write your filter just like an if statement. Example: :code:`@col_name@ == 'hello'` You can use built-in python functions. Example: :code:`float(@col_name@) + float(@another_col_name@) > 10`
+        :param search_start: The row to start filtering at.
+        :param search_end: The row to stop filtering at. Type "END" to stop at the end.
+        :return: A Table object with the filtered results.
+        """
+        if search_end == "END":
+            search_end = int(len(self.table_content))
+
+        result_list = []
+        for i in enumerate(self.table_content[search_start:search_end]):
+            col_names_found = re.findall("@(.+?)@", formula)
+            current_formula = formula
+            for j in col_names_found:
+                current_formula = current_formula.replace(f"@{j}@", str(self.__string_type(self.get_col(j)[i[0]])))
+
+            if eval(current_formula):
+                result_list.append(i[1])
+
+        result_list.insert(0, self.table_content[0])
+        temp_table = Table()
+        temp_table.table_content = result_list
+        return temp_table
+
+    def legacy_filter(self, col_name, value, type="exact", search_start=1, search_end="END", add_headers_to_result=True, legacy=False):
         """
         Used to filter your table.
 
