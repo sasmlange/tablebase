@@ -71,7 +71,7 @@ class Table(object):
         Used to get all data in one column.
 
         :param col_name: The name of the column you wish to get.
-        :return: A list of all data in one column.
+        :return: A list of all data in one column (column name not included).
         """
         col_position = self.table_content[0].index(col_name)
         temp_table_content = self.table_content[:]
@@ -153,6 +153,13 @@ class Table(object):
                 self.table_content[i + 1].append(default_value[i])
 
     def edit_row(self, row_num, new_value):
+        """
+        Used to edit a row.
+
+        :param row_num: The row number to edit.
+        :param new_value: Use a list override a row. If you use a dictionary, the key will be the column name.
+        :return:
+        """
         if type(new_value) is not dict and type(new_value) is not list:
             raise TypeError("Only types 'dict' and 'list' are excepted")
 
