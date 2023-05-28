@@ -265,7 +265,7 @@ class Table(object):
         :param divider: The divider between columns.
         :return:
         """
-        with open(path, 'w') as csv_file:
+        with open(path, 'w', newline="") as csv_file:
             csv_writer = csv.writer(csv_file, delimiter=divider)
             csv_writer.writerows(self.table_content)
 
