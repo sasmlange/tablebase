@@ -1,7 +1,7 @@
 Tablebase
 =============
 
-Note: If you found a bug please open an issue. If not create a discussion.
+If you found a bug, need a feature, or have question please open an [issue](https://github.com/sasmlange/tablebase/issues).
 
 All relesses starting at 1.4.2 can be found [here](https://github.com/sasmlange/tablebase/releases)
 
