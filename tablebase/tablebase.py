@@ -146,11 +146,10 @@ class Table(object):
         self.table_content[0].append(col_name)
 
         for i in range(int(len(self.table_content)) - 1):
-            if type(default_value) is str:
-                self.table_content[i + 1].append(default_value)
-            elif type(default_value) is list:
-
+            if type(default_value) is list:
                 self.table_content[i + 1].append(default_value[i])
+            else:
+                self.table_content[i + 1].append(default_value)
 
     def edit_row(self, row_num, new_value):
         """
@@ -278,8 +277,6 @@ class CsvTable(Table):
     :param divider: The divider between columns.
     """
     def __init__(self, csv_path, divider=","):
-        self.csv_path = csv_path
-
         with open(csv_path) as csv_file:
             csv_content_list = list(csv.reader(csv_file, delimiter=divider))
 
