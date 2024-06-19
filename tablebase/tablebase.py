@@ -3,6 +3,21 @@ import csv
 import warnings
 
 
+def formula_setup(added_objects):
+    """
+    Add packages, modules, variables, functions, and other objects to be used in expand and filter formulas.
+
+    :param added_objects: A list containing the objects you want to include
+    :return:
+    """
+
+    if type(added_objects) is not list:
+        added_objects = [added_objects]
+
+    for added_object in added_objects:
+        globals()[added_object.__name__] = added_object
+
+
 class Table(object):
     """The Table class is the basic table in tablebase."""
     name = ""
