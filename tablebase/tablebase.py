@@ -1,6 +1,8 @@
+from __future__ import annotations
 import re
 import csv
 import warnings
+from typing import Union, Any
 
 
 def formula_setup(added_objects):
@@ -31,7 +33,7 @@ class Table(object):
     
     """
 
-    def display(self, divider=""):
+    def display(self, divider: str = "") -> None:
         """
         Use display for pretty-printing to the console.
 
@@ -46,7 +48,7 @@ class Table(object):
         for row in self.table_content:
             print(row_format.format(*row))
 
-    def override_col(self, col_name, value):
+    def override_col(self, col_name: str, value: list) -> None:
         """
         Used to override all content in the column
 
@@ -59,7 +61,7 @@ class Table(object):
         for i in range(int(len(self.table_content)) - 1):
             self.table_content[i + 1][col_num] = value[i]
 
-    def rename_col(self, col_name, new_col_name):
+    def rename_col(self, col_name: str, new_col_name: str) -> None:
         """
         Used to rename a column.
 
@@ -69,7 +71,7 @@ class Table(object):
         """
         self.table_content[0][self.table_content[0].index(col_name)] = new_col_name
 
-    def del_col(self, col_name):
+    def del_col(self, col_name: str) -> None:
         """
         Used to delete a column
 
@@ -82,7 +84,7 @@ class Table(object):
         for i in range(int(len(self.table_content))):
             self.table_content[i].pop(del_num)
 
-    def get_col(self, col_name):
+    def get_col(self, col_name: str) -> list:
         """
         Used to get all data in one column.
 
@@ -100,13 +102,13 @@ class Table(object):
 
         return col
 
-    def __string_type(self, string):
+    def __string_type(self, string: str) -> str:
         if type(string) is str:
             return f"'{string}'"
         else:
             return string
 
-    def __private_expand(self, formula):
+    def __private_expand(self, formula: str) -> list:
         col_names_found = re.findall("@(.+?)@", formula)
 
         results = []
@@ -120,7 +122,7 @@ class Table(object):
 
         return results
 
-    def add_expand(self, new_col_name, formula):
+    def add_expand(self, new_col_name: str, formula: str) -> None:
         """
          Used to add a column that is based on another column.
 
@@ -131,7 +133,7 @@ class Table(object):
 
         self.add_col(new_col_name, self.__private_expand(formula))
 
-    def expand(self, col_name, formula):
+    def expand(self, col_name: str, formula: str) -> None:
         """
          Used to override a column that is based on another column.
 
@@ -142,7 +144,7 @@ class Table(object):
 
         self.override_col(col_name, self.__private_expand(formula))
 
-    def add_row(self, new_content):
+    def add_row(self, new_content: Union[list, dict]) -> None:
         """
         Used to add a row to your table.
 
@@ -164,7 +166,7 @@ class Table(object):
             raise Exception(f"Type {type(new_content)} is not allowed.")
         self.table_content.append(new_record)
 
-    def add_col(self, col_name, default_value="", trim=True):
+    def add_col(self, col_name: str, default_value: Any = "", trim: bool = True) -> None:
         """
         Used to add a column to your table.
 
@@ -188,7 +190,7 @@ class Table(object):
             for i in range(int(len(self.table_content)) - 1):
                 self.table_content[i + 1].append(default_value)
 
-    def edit_row(self, row_num, new_value):
+    def edit_row(self, row_num: int, new_value: Union[list, dict]) -> None:
         """
         Used to edit a row.
 
@@ -208,7 +210,7 @@ class Table(object):
                 raise ValueError("The new value is not the same length as the table header.")
             self.table_content[row_num] = new_value
 
-    def edit_cell(self, row_num, col_name, new_value):
+    def edit_cell(self, row_num: int, col_name: str, new_value: Any) -> None:
         """
         Used to edit a cell of your table.
 
@@ -219,7 +221,7 @@ class Table(object):
         """
         self.table_content[row_num][self.table_content[0].index(col_name)] = new_value
 
-    def filter(self, formula, search_start=1, search_end="END"):
+    def filter(self, formula: str, search_start: int = 1, search_end: Union[str, int] = "END") -> Table:
         """
         Used to filter your table.
 
@@ -246,13 +248,13 @@ class Table(object):
         temp_table.table_content = result_list
         return temp_table
 
-    def legacy_filter(self, col_name, value, type="exact", search_start=1, search_end="END", add_headers_to_result=True, legacy=False):
+    def legacy_filter(self, col_name: str, value: Any, filter_type: str = "exact", search_start: int = 1, search_end: Union[str, int] = "END", add_headers_to_result: bool = True, legacy: bool = False) -> Union[Table, list]:
         """
         Used to filter your table.
 
         :param col_name: The column you wish to use to filter.
         :param value: The value you wish to use to filter with.
-        :param type: The filter type. Can be "exact" (same), "iexact" (not case-sensitive), "greaterthan", or "lessthan".
+        :param filter_type: The filter type. Can be "exact" (same), "iexact" (not case-sensitive), "greaterthan", or "lessthan".
         :param search_start: The row to start filtering at.
         :param search_end: The row to stop filtering at. Type "END" to stop at the end.
         :param add_headers_to_result: If True, your table headers will be included in the result.
@@ -265,23 +267,23 @@ class Table(object):
         result_list = []
         for i in self.table_content[search_start:search_end]:
 
-            if type == "exact":
+            if filter_type == "exact":
                 if i[self.table_content[0].index(col_name)] == value:
                     result_list.append(i)
-            elif type == "iexact":
+            elif filter_type == "iexact":
                 if i[self.table_content[0].index(col_name)].lower() == value.lower():
                     result_list.append(i)
 
-            elif type == "greaterthan":
+            elif filter_type == "greaterthan":
                 if float(i[self.table_content[0].index(col_name)]) > float(value):
                     result_list.append(i)
 
-            elif type == "lessthan":
+            elif filter_type == "lessthan":
                 if float(i[self.table_content[0].index(col_name)]) < float(value):
                     result_list.append(i)
 
             else:
-                raise Exception(f'Could not find filter method "{type}"')
+                raise Exception(f'Could not find filter method "{filter_type}"')
 
         if add_headers_to_result:
             result_list.insert(0, self.table_content[0])
@@ -293,7 +295,7 @@ class Table(object):
             temp_table.table_content = result_list
             return temp_table
 
-    def count(self):
+    def count(self) -> int:
         """
         Used to find how many rows in the Table.
 
@@ -301,7 +303,7 @@ class Table(object):
         """
         return int(len(self.table_content))
 
-    def incorporate(self, new_table):
+    def incorporate(self, new_table: Table) -> None:
         """
         Used to merge data from another table into the object applying the methood.
 
@@ -322,7 +324,7 @@ class Table(object):
 
         self.table_content = self.table_content + new_table.table_content
 
-    def save(self, path, divider=","):
+    def save(self, path: str, divider: str = ",") -> None:
         """
         Used to save your table for that file.
 
@@ -342,7 +344,7 @@ class CsvTable(Table):
     :param csv_path: The path to your CSV
     :param divider: The divider between columns.
     """
-    def __init__(self, csv_path, divider=","):
+    def __init__(self, csv_path: str, divider: str = ","):
         with open(csv_path) as csv_file:
             csv_content_list = list(csv.reader(csv_file, delimiter=divider))
 
