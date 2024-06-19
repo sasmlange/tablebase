@@ -131,10 +131,23 @@ class Table(object):
         """
         Used to add a row to your table.
 
-        :param new_content: A list of the entries you wish to add.
+        :param new_content: A list of the entries you wish to add. It can also be a dictionary with the key being the column name and the value being the content.
         :return:
         """
-        self.table_content.append(new_content)
+        if type(new_content) is list:
+            if len(new_content) < len(self.table_content[0]):
+                warnings.warn(f"Row adding list is only {len(new_content)} items while there are {len(self.table_content[0])} columns")
+            new_record = new_content
+        elif type(new_content) is dict:
+            new_record = []
+            for col, col_num in enumerate(self.table_content[0]):
+                if col in new_content:
+                    new_record.append(new_content[col])
+                else:
+                    new_record.append("")
+        else:
+            raise Exception(f"Type {type(new_content)} is not allowed.")
+        self.table_content.append(new_record)
 
     def add_col(self, col_name, default_value="", trim=True):
         """
