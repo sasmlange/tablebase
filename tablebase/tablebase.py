@@ -1,5 +1,24 @@
+from __future__ import annotations
+import os
 import re
 import csv
+import warnings
+from typing import Union, Any
+
+
+def formula_setup(added_objects):
+    """
+    Add packages, modules, variables, functions, and other objects to be used in expand and filter formulas.
+
+    :param added_objects: A list containing the objects you want to include
+    :return:
+    """
+
+    if type(added_objects) is not list:
+        added_objects = [added_objects]
+
+    for added_object in added_objects:
+        globals()[added_object.__name__] = added_object
 
 
 class Table(object):
@@ -15,22 +34,32 @@ class Table(object):
     
     """
 
-    def display(self, divider=""):
+    def display(self, max_rows: int = 10) -> None:
         """
         Use display for pretty-printing to the console.
 
-        :param divider: Used to customize the divider between the columns.
+        :param max_rows: How many rows to display.
         :return:
         """
+
+        if len(self.table_content) > max_rows:
+            display_data = list(self.table_content)[:max_rows + 1]
+            display_amount = f"{max_rows}/{len(self.table_content) - 1}"
+        else:
+            display_data = list(self.table_content)
+            display_amount = f"{len(self.table_content) - 1}/{len(self.table_content) - 1}"
+
         longest_cols = [
-            (max([len(str(row[i])) for row in self.table_content]) + 3)
-            for i in range(len(self.table_content[0]))
+            (max([len(str(row[i])) for row in display_data]) + 3)
+            for i in range(len(display_data[0]))
         ]
-        row_format = "".join(["{:>" + str(longest_col) + "}" + divider for longest_col in longest_cols])
-        for row in self.table_content:
+        row_format = "".join(["{:>" + str(longest_col) + "}" for longest_col in longest_cols])
+        for row in display_data:
             print(row_format.format(*row))
 
-    def override_col(self, col_name, value):
+        print(f"\n{display_amount} rows shown")
+
+    def override_col(self, col_name: str, value: list) -> None:
         """
         Used to override all content in the column
 
@@ -43,7 +72,7 @@ class Table(object):
         for i in range(int(len(self.table_content)) - 1):
             self.table_content[i + 1][col_num] = value[i]
 
-    def rename_col(self, col_name, new_col_name):
+    def rename_col(self, col_name: str, new_col_name: str) -> None:
         """
         Used to rename a column.
 
@@ -53,7 +82,7 @@ class Table(object):
         """
         self.table_content[0][self.table_content[0].index(col_name)] = new_col_name
 
-    def del_col(self, col_name):
+    def del_col(self, col_name: str) -> None:
         """
         Used to delete a column
 
@@ -66,7 +95,7 @@ class Table(object):
         for i in range(int(len(self.table_content))):
             self.table_content[i].pop(del_num)
 
-    def get_col(self, col_name):
+    def get_col(self, col_name: str) -> list:
         """
         Used to get all data in one column.
 
@@ -84,13 +113,13 @@ class Table(object):
 
         return col
 
-    def __string_type(self, string):
+    def __string_type(self, string: str) -> str:
         if type(string) is str:
             return f"'{string}'"
         else:
             return string
 
-    def __private_expand(self, formula):
+    def __private_expand(self, formula: str) -> list:
         col_names_found = re.findall("@(.+?)@", formula)
 
         results = []
@@ -104,7 +133,7 @@ class Table(object):
 
         return results
 
-    def add_expand(self, new_col_name, formula):
+    def add_expand(self, new_col_name: str, formula: str) -> None:
         """
          Used to add a column that is based on another column.
 
@@ -115,7 +144,7 @@ class Table(object):
 
         self.add_col(new_col_name, self.__private_expand(formula))
 
-    def expand(self, col_name, formula):
+    def expand(self, col_name: str, formula: str) -> None:
         """
          Used to override a column that is based on another column.
 
@@ -126,32 +155,53 @@ class Table(object):
 
         self.override_col(col_name, self.__private_expand(formula))
 
-    def add_row(self, new_content):
+    def add_row(self, new_content: Union[list, dict]) -> None:
         """
         Used to add a row to your table.
 
-        :param new_content: A list of the entries you wish to add.
+        :param new_content: A list of the entries you wish to add. It can also be a dictionary with the key being the column name and the value being the content.
         :return:
         """
-        self.table_content.append(new_content)
+        if type(new_content) is list:
+            if len(new_content) < len(self.table_content[0]):
+                warnings.warn(f"Row adding list is only {len(new_content)} items while there are {len(self.table_content[0])} columns")
+            new_record = new_content
+        elif type(new_content) is dict:
+            new_record = []
+            for col, col_num in enumerate(self.table_content[0]):
+                if col in new_content:
+                    new_record.append(new_content[col])
+                else:
+                    new_record.append("")
+        else:
+            raise Exception(f"Type {type(new_content)} is not allowed.")
+        self.table_content.append(new_record)
 
-    def add_col(self, col_name, default_value=""):
+    def add_col(self, col_name: str, default_value: Any = "", trim: bool = True) -> None:
         """
         Used to add a column to your table.
 
         :param col_name: The name of your new column.
         :param default_value: The default value for new records in that column or a list of specific values for this column.
+        :param trim: Boolean value to know whether to trim the default list value if longer than other columns
         :return:
         """
         self.table_content[0].append(col_name)
 
-        for i in range(int(len(self.table_content)) - 1):
-            if type(default_value) is list:
-                self.table_content[i + 1].append(default_value[i])
-            else:
+        if type(default_value) is list:
+            for i, value in enumerate(default_value):
+                if int(len(self.table_content)) <= i + 1:
+                    if trim:
+                        break
+                    else:
+                        self.table_content.append([""] * (len(self.table_content[0]) - 1) + [value])
+                else:
+                    self.table_content[i + 1].append(value)
+        else:
+            for i in range(int(len(self.table_content)) - 1):
                 self.table_content[i + 1].append(default_value)
 
-    def edit_row(self, row_num, new_value):
+    def edit_row(self, row_num: int, new_value: Union[list, dict]) -> None:
         """
         Used to edit a row.
 
@@ -171,7 +221,7 @@ class Table(object):
                 raise ValueError("The new value is not the same length as the table header.")
             self.table_content[row_num] = new_value
 
-    def edit_cell(self, row_num, col_name, new_value):
+    def edit_cell(self, row_num: int, col_name: str, new_value: Any) -> None:
         """
         Used to edit a cell of your table.
 
@@ -182,7 +232,7 @@ class Table(object):
         """
         self.table_content[row_num][self.table_content[0].index(col_name)] = new_value
 
-    def filter(self, formula, search_start=1, search_end="END"):
+    def filter(self, formula: str, search_start: int = 1, search_end: Union[str, int] = "END") -> Table:
         """
         Used to filter your table.
 
@@ -209,13 +259,13 @@ class Table(object):
         temp_table.table_content = result_list
         return temp_table
 
-    def legacy_filter(self, col_name, value, type="exact", search_start=1, search_end="END", add_headers_to_result=True, legacy=False):
+    def legacy_filter(self, col_name: str, value: Any, filter_type: str = "exact", search_start: int = 1, search_end: Union[str, int] = "END", add_headers_to_result: bool = True, legacy: bool = False) -> Union[Table, list]:
         """
         Used to filter your table.
 
         :param col_name: The column you wish to use to filter.
         :param value: The value you wish to use to filter with.
-        :param type: The filter type. Can be "exact" (same), "iexact" (not case-sensitive), "greaterthan", or "lessthan".
+        :param filter_type: The filter type. Can be "exact" (same), "iexact" (not case-sensitive), "greaterthan", or "lessthan".
         :param search_start: The row to start filtering at.
         :param search_end: The row to stop filtering at. Type "END" to stop at the end.
         :param add_headers_to_result: If True, your table headers will be included in the result.
@@ -228,23 +278,23 @@ class Table(object):
         result_list = []
         for i in self.table_content[search_start:search_end]:
 
-            if type == "exact":
+            if filter_type == "exact":
                 if i[self.table_content[0].index(col_name)] == value:
                     result_list.append(i)
-            elif type == "iexact":
+            elif filter_type == "iexact":
                 if i[self.table_content[0].index(col_name)].lower() == value.lower():
                     result_list.append(i)
 
-            elif type == "greaterthan":
+            elif filter_type == "greaterthan":
                 if float(i[self.table_content[0].index(col_name)]) > float(value):
                     result_list.append(i)
 
-            elif type == "lessthan":
+            elif filter_type == "lessthan":
                 if float(i[self.table_content[0].index(col_name)]) < float(value):
                     result_list.append(i)
 
             else:
-                raise Exception(f'Could not find filter method "{type}"')
+                raise Exception(f'Could not find filter method "{filter_type}"')
 
         if add_headers_to_result:
             result_list.insert(0, self.table_content[0])
@@ -256,7 +306,55 @@ class Table(object):
             temp_table.table_content = result_list
             return temp_table
 
-    def save(self, path, divider=","):
+    def count(self) -> int:
+        """
+        Used to find how many rows in the Table.
+
+        :return: An integer value of the amount of rows.
+        """
+        return int(len(self.table_content))
+
+    def incorporate(self, new_table: Table) -> None:
+        """
+        Used to merge data from another table into the object applying the methood.
+
+        :param new_table: The Table object to merge
+        :return:
+        """
+
+        if new_table.table_content[0] != self.table_content[0]:
+            temp_table = Table()
+            for col_name in self.table_content[0]:
+                if col_name not in new_table.table_content[0]:
+                    raise ValueError(f"'{col_name}' is not found in the provided table to be incorporated")
+                temp_table.add_col(col_name, new_table.get_col(col_name), False)
+
+            new_table = temp_table
+
+        new_table.table_content.pop(0)
+
+        self.table_content = self.table_content + new_table.table_content
+
+    def sort(self, col_name: str, ascending: bool = True) -> None:
+        """
+        Used to sort the Table by a column
+
+        :param col_name: The column name by which to filter.
+        :param ascending: Specifies if the Table should be sorting ascending or descending
+        :return:
+        """
+        temp_data = list(self.table_content)
+        temp_data.pop(0)
+
+        col_index = self.table_content[0].index(col_name)
+
+        temp_data = sorted(temp_data, key=lambda row: row[col_index], reverse=not ascending)
+
+        temp_data.insert(0, list(self.table_content[0]))
+
+        self.table_content = temp_data
+
+    def save(self, path: str, divider: str = ",") -> None:
         """
         Used to save your table for that file.
 
@@ -276,8 +374,14 @@ class CsvTable(Table):
     :param csv_path: The path to your CSV
     :param divider: The divider between columns.
     """
-    def __init__(self, csv_path, divider=","):
+    def __init__(self, csv_path: str, divider: str = ","):
         with open(csv_path) as csv_file:
             csv_content_list = list(csv.reader(csv_file, delimiter=divider))
 
         self.table_content = csv_content_list
+
+        if len(self.table_content) == 0:
+            warnings.warn(f"Opened CSV was empty.")
+        elif len(set(self.table_content[0])) != len(self.table_content[0]):
+            warnings.warn(f"Opened CSV ({os.path.basename(csv_path)}) contains duplicate column names. This might cause several methods to produce unexpected results")
+

@@ -1,1 +1,1 @@
-from .tablebase import Table, CsvTable
+from .tablebase import Table, CsvTable, formula_setup
