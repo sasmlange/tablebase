@@ -34,20 +34,31 @@ class Table(object):
     
     """
 
-    def display(self, divider: str = "") -> None:
+    def display(self, divider: str = "", max_rows: int = 10) -> None:
         """
         Use display for pretty-printing to the console.
 
         :param divider: Used to customize the divider between the columns.
+        :param max_rows: How many rows to display.
         :return:
         """
+
+        if len(self.table_content) > max_rows:
+            display_data = list(self.table_content)[:max_rows + 1]
+            display_amount = f"{max_rows}/{len(self.table_content) - 1}"
+        else:
+            display_data = list(self.table_content)
+            display_amount = f"{len(self.table_content) - 1}/{len(self.table_content) - 1}"
+
         longest_cols = [
-            (max([len(str(row[i])) for row in self.table_content]) + 3)
-            for i in range(len(self.table_content[0]))
+            (max([len(str(row[i])) for row in display_data]) + 3)
+            for i in range(len(display_data[0]))
         ]
         row_format = "".join(["{:>" + str(longest_col) + "}" + divider for longest_col in longest_cols])
-        for row in self.table_content:
+        for row in display_data:
             print(row_format.format(*row))
+
+        print(f"\n{display_amount} rows shown")
 
     def override_col(self, col_name: str, value: list) -> None:
         """
