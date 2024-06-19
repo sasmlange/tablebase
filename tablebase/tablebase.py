@@ -265,6 +265,27 @@ class Table(object):
             temp_table.table_content = result_list
             return temp_table
 
+    def incorporate(self, new_table):
+        """
+        Used to merge data from another table into the object applying the methood.
+
+        :param new_table: The Table object to merge
+        :return:
+        """
+
+        if new_table.table_content[0] != self.table_content[0]:
+            temp_table = Table()
+            for col_name in self.table_content[0]:
+                if col_name not in new_table.table_content[0]:
+                    raise ValueError(f"'{col_name}' is not found in the provided table to be incorporated")
+                temp_table.add_col(col_name, new_table.get_col(col_name), False)
+
+            new_table = temp_table
+
+        new_table.table_content.pop(0)
+
+        self.table_content = self.table_content + new_table.table_content
+
     def save(self, path, divider=","):
         """
         Used to save your table for that file.
