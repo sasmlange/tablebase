@@ -1,5 +1,6 @@
 import re
 import csv
+import warnings
 
 
 class Table(object):
@@ -135,20 +136,28 @@ class Table(object):
         """
         self.table_content.append(new_content)
 
-    def add_col(self, col_name, default_value=""):
+    def add_col(self, col_name, default_value="", trim=True):
         """
         Used to add a column to your table.
 
         :param col_name: The name of your new column.
         :param default_value: The default value for new records in that column or a list of specific values for this column.
+        :param trim: Boolean value to know whether to trim the default list value if longer than other columns
         :return:
         """
         self.table_content[0].append(col_name)
 
-        for i in range(int(len(self.table_content)) - 1):
-            if type(default_value) is list:
-                self.table_content[i + 1].append(default_value[i])
-            else:
+        if type(default_value) is list:
+            for i, value in enumerate(default_value):
+                if int(len(self.table_content)) <= i + 1:
+                    if trim:
+                        break
+                    else:
+                        self.table_content.append([""] * (len(self.table_content[0]) - 1) + [value])
+                else:
+                    self.table_content[i + 1].append(value)
+        else:
+            for i in range(int(len(self.table_content)) - 1):
                 self.table_content[i + 1].append(default_value)
 
     def edit_row(self, row_num, new_value):
