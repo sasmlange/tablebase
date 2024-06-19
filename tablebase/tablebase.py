@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 import re
 import csv
 import warnings
@@ -324,6 +325,25 @@ class Table(object):
 
         self.table_content = self.table_content + new_table.table_content
 
+    def sort(self, col_name: str, ascending: bool = True) -> None:
+        """
+        Used to sort the Table by a column
+
+        :param col_name: The column name by which to filter.
+        :param ascending: Specifies if the Table should be sorting ascending or descending
+        :return:
+        """
+        temp_data = list(self.table_content)
+        temp_data.pop(0)
+
+        col_index = self.table_content[0].index(col_name)
+
+        temp_data = sorted(temp_data, key=lambda row: row[col_index], reverse=not ascending)
+
+        temp_data.insert(0, list(self.table_content[0]))
+
+        self.table_content = temp_data
+
     def save(self, path: str, divider: str = ",") -> None:
         """
         Used to save your table for that file.
@@ -349,3 +369,9 @@ class CsvTable(Table):
             csv_content_list = list(csv.reader(csv_file, delimiter=divider))
 
         self.table_content = csv_content_list
+
+        if len(self.table_content) == 0:
+            warnings.warn(f"Opened CSV was empty.")
+        elif len(set(self.table_content[0])) != len(self.table_content[0]):
+            warnings.warn(f"Opened CSV ({os.path.basename(csv_path)}) contains duplicate column names. This might cause several methods to produce unexpected results")
+

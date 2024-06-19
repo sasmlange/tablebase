@@ -1,9 +1,9 @@
-Tablebase
-=============
+Tablebase 1.7.0
+=================
 
 If you found a bug, need a feature, or have question please open an [issue](https://github.com/sasmlange/tablebase/issues).
 
-All relesses starting at 1.4.2 can be found [here](https://github.com/sasmlange/tablebase/releases)
+All releases starting at 1.4.2 can be found [here](https://github.com/sasmlange/tablebase/releases)
 
 What is Tablebase?
 ------------------------
