@@ -293,6 +293,14 @@ class Table(object):
             temp_table.table_content = result_list
             return temp_table
 
+    def count(self):
+        """
+        Used to find how many rows in the Table.
+
+        :return: An integer value of the amount of rows.
+        """
+        return int(len(self.table_content))
+
     def incorporate(self, new_table):
         """
         Used to merge data from another table into the object applying the methood.
